@@ -2,6 +2,7 @@ import React from "react";
 import Button from "./Button";
 
 import logoSvg from "../assets/img/pizza-logo.svg";
+import logoGit from "../assets/img/git.png";
 import { Link } from "react-router-dom";
 import { useSelector } from "react-redux";
 
@@ -12,6 +13,12 @@ function Header() {
   }));
   return (
     <div className="header">
+      <div className="git">
+        <a href="https://github.com/SibiryakovAM/react-pizza">
+          {" "}
+          <img src={logoGit} alt="" width="55" height="55" />
+        </a>{" "}
+      </div>
       <div className="container">
         <Link to="/">
           <div className="header__logo">
@@ -22,6 +29,7 @@ function Header() {
             </div>
           </div>
         </Link>
+
         <div className="header__cart">
           <Link to="/cart">
             <Button className="button--cart">
