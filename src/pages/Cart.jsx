@@ -111,8 +111,8 @@ function Cart() {
                   name={obj.name}
                   type={obj.type}
                   size={obj.size}
-                  targetPrice={items[obj.id + obj.size + obj.type].targetPrice}
-                  targetCount={items[obj.id + obj.size + obj.type].items.length}
+                  targetPrice={items[obj.id + obj.type + obj.size].targetPrice}
+                  targetCount={items[obj.id + obj.type + obj.size].items.length}
                   onRemove={onRemoveItem}
                   onMinus={onMinusPizza}
                   onPlus={onPlusPizza}

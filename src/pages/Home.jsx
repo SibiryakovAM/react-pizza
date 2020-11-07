@@ -36,7 +36,7 @@ function Home() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   const items = useSelector(({ pizzas }) => pizzas.items);
-  const cartItems = useSelector(({ cart }) => cart.items);
+  const cartTargetCount = useSelector(({ cart }) => cart.targetCount);
   const isLoaded = useSelector(({ pizzas }) => pizzas.isLoaded);
   const { category, sortBy } = useSelector(({ filters }) => filters);
   React.useEffect(
@@ -50,6 +50,7 @@ function Home() {
   const addPizzaToCart = (obj) => {
     disp(addPizza(obj));
   };
+
   return (
     <div className="container">
       <div className="content__top">
@@ -68,7 +69,7 @@ function Home() {
                 key={obj.id}
                 obj={obj}
                 addPizzas={addPizzaToCart}
-                addedCount={cartItems[obj.id] && cartItems[obj.id].items.length}
+                addedCount={cartTargetCount && cartTargetCount[obj.id]}
               />
             ))
           : array.map(() => <ContentLoader key={Math.random()} />)}
