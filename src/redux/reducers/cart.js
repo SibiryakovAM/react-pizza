@@ -2,24 +2,17 @@ const initialState = {
   items: {},
   totalPrice: 0,
   totalCount: 0,
-  targetCount: {},
 };
+
 const cart = (state = initialState, action) => {
   switch (action.type) {
     case "ADD_PIZZA":
-      const carrentPizzaItems = !state.items[
-        action.payload.id + action.payload.type + action.payload.size
-      ]
+      const carrentPizzaItems = !state.items[action.payload.id]
         ? [action.payload]
-        : [
-            ...state.items[
-              action.payload.id + action.payload.type + action.payload.size
-            ].items,
-            action.payload,
-          ];
+        : [...state.items[action.payload.id].items, action.payload];
       const newItems = {
         ...state.items,
-        [action.payload.id + action.payload.type + action.payload.size]: {
+        [action.payload.id]: {
           items: carrentPizzaItems,
           targetPrice: carrentPizzaItems.reduce(
             (sum, obj) => obj.price + sum,
@@ -27,15 +20,6 @@ const cart = (state = initialState, action) => {
           ),
         },
       };
-      const targetCount = !state.targetCount[action.payload.id]
-        ? 1
-        : state.targetCount[action.payload.id] + 1;
-
-      const buffTargetCount = {
-        ...state.targetCount,
-        [action.payload.id]: targetCount,
-      };
-
       const buff = Object.values(newItems).map((obj) => obj.items);
       const allPizzas = [].concat.apply([], buff);
       const totalPrice = allPizzas.reduce((sum, obj) => obj.price + sum, 0);
@@ -44,38 +28,25 @@ const cart = (state = initialState, action) => {
         items: newItems,
         totalCount: allPizzas.length,
         totalPrice,
-        targetCount: buffTargetCount,
       };
     case "CLEAR_CART":
-      return { totalPrice: 0, totalCount: 0, items: {}, targetCount: {} };
+      return { totalPrice: 0, totalCount: 0, items: {} };
     case "PLUS_PIZZA": {
       const plusItem = [
-        ...state.items[
-          action.payload.id + action.payload.type + action.payload.size
-        ].items,
-        state.items[
-          action.payload.id + action.payload.type + action.payload.size
-        ].items[0],
+        ...state.items[action.payload].items,
+        state.items[action.payload].items[0],
       ];
       const buffTotalPrice =
-        state.totalPrice +
-        state.items[
-          action.payload.id + action.payload.type + action.payload.size
-        ].items[0].price;
-      const buffTotalCount = state.totalCount + 1;
-      const targetCount = {
-        ...state.targetCount,
-        [action.payload.id]: state.targetCount[action.payload.id] + 1,
-      };
-
+        state.totalPrice + state.items[action.payload].targetPrice;
+      const buffTotalCount =
+        state.totalCount + state.items[action.payload].items.length;
       return {
         ...state,
-        targetCount,
-        totalCount: buffTotalCount,
-        totalPrice: buffTotalPrice,
         items: {
           ...state.items,
-          [action.payload.id + action.payload.type + action.payload.size]: {
+          // totalPrice: buffTotalPrice,
+          // totalCount: buffTotalCount,
+          [action.payload]: {
             items: plusItem,
             targetPrice: plusItem.reduce((sum, obj) => obj.price + sum, 0),
           },
@@ -83,107 +54,42 @@ const cart = (state = initialState, action) => {
       };
     }
     case "MINUS_PIZZA": {
-      const minusItemArr = {
-        ...state.items,
-      };
-
       const minusItem =
-        state.items[
-          action.payload.id + action.payload.type + action.payload.size
-        ].items.length > 1
-          ? state.items[
-              action.payload.id + action.payload.type + action.payload.size
-            ].items.slice(1)
-          : state.items[
-              action.payload.id + action.payload.type + action.payload.size
-            ].items;
-      const buffTargetPrice =
-        state.items[
-          action.payload.id + action.payload.type + action.payload.size
-        ].items.length > 1
-          ? minusItemArr[
-              action.payload.id + action.payload.type + action.payload.size
-            ].targetPrice -
-            minusItemArr[
-              action.payload.id + action.payload.type + action.payload.size
-            ].items[0].price
-          : minusItemArr[
-              action.payload.id + action.payload.type + action.payload.size
-            ].targetPrice;
-
+        state.items[action.payload].items.length > 1
+          ? state.items[action.payload].items.slice(1)
+          : state.items[action.payload].items;
       const buffTotalPrice =
-        state.items[
-          action.payload.id + action.payload.type + action.payload.size
-        ].items.length > 1
-          ? state.totalPrice -
-            minusItemArr[
-              action.payload.id + action.payload.type + action.payload.size
-            ].items[0].price
-          : state.totalPrice;
+        state.totalPrice - minusItem[action.payload].targetPrice;
       const buffTotalCount =
-        state.items[
-          action.payload.id + action.payload.type + action.payload.size
-        ].items.length > 1
-          ? state.totalCount - 1
-          : state.totalCount;
-      const targetCount =
-        state.items[
-          action.payload.id + action.payload.type + action.payload.size
-        ].items.length > 1
-          ? state.targetCount[action.payload.id] - 1
-          : state.targetCount[action.payload.id];
-      console.log(state.targetCount[action.payload.id]);
-      const buffTargetCount = {
-        ...state.targetCount,
-        [action.payload.id]: targetCount,
-      };
+        state.totalCount - minusItem[action.payload].items.length;
+
       return {
         ...state,
-        totalCount: buffTotalCount,
-        totalPrice: buffTotalPrice,
-        targetCount: buffTargetCount,
         items: {
           ...state.items,
-          [action.payload.id + action.payload.type + action.payload.size]: {
+          [action.payload]: {
             items: minusItem,
-            targetPrice: buffTargetPrice,
+            totalPrice: buffTotalPrice,
+            totalCount: buffTotalCount,
           },
         },
       };
     }
-    case "REMOVE_PIZZA": {
+    case "REMOVE_PIZZA":
       const deleteItems = {
         ...state.items,
       };
       const buffTotalPrice =
-        state.totalPrice -
-        deleteItems[
-          action.payload.id + action.payload.type + action.payload.size
-        ].targetPrice;
+        state.totalPrice - deleteItems[action.payload].targetPrice;
       const buffTotalCount =
-        state.totalCount -
-        deleteItems[
-          action.payload.id + action.payload.type + action.payload.size
-        ].items.length;
-      delete deleteItems[
-        action.payload.id + action.payload.type + action.payload.size
-      ];
-      const targetCount = {
-        ...state.targetCount,
-        [action.payload.id]:
-          state.targetCount[action.payload.id] -
-          state.items[
-            action.payload.id + action.payload.type + action.payload.size
-          ].items.length,
-      };
+        state.totalCount - deleteItems[action.payload].items.length;
+      delete deleteItems[action.payload];
       return {
         ...state,
-        targetCount,
         items: deleteItems,
         totalPrice: buffTotalPrice,
         totalCount: buffTotalCount,
       };
-    }
     default:
       return state;
   }
