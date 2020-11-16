@@ -7,15 +7,15 @@ export const clearCart = () => ({
   type: "CLEAR_CART",
 });
 
-export const removePizza = (id) => ({
+export const removePizza = (obj) => ({
   type: "REMOVE_PIZZA",
-  payload: id,
+  payload: obj,
 });
-export const plusPizza = (id) => ({
+export const plusPizza = (obj) => ({
   type: "PLUS_PIZZA",
-  payload: id,
+  payload: obj,
 });
-export const minusPizza = (id) => ({
+export const minusPizza = (obj) => ({
   type: "MINUS_PIZZA",
-  payload: id,
+  payload: obj,
 });
